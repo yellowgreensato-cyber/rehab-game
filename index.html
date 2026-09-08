@@ -1787,5 +1787,19 @@ window.addEventListener("resize",()=>{
 try{ const sv=localStorage.getItem("rehab_lang"); if(sv==="en") LANG="en"; }catch(e){}
 applyLang();
 </script>
+<!-- アクセス数の集計（GoatCounter・クッキーなし・個人は特定しません）
+     インターネット経由で開いたときだけ動きます。
+     ダウンロードして使う場合は何も送信しません。
+     自分用に集計したいときは、下の rehabgame の部分を自分のコードに変えてください。 -->
+<script>
+(function(){
+  if(location.protocol !== "http:" && location.protocol !== "https:") return;
+  var g=document.createElement("script");
+  g.async=true;
+  g.setAttribute("data-goatcounter","https://rehabgame.goatcounter.com/count");
+  g.src="https://gc.zgo.at/count.js";
+  document.head.appendChild(g);
+})();
+</script>
 </body>
 </html>
