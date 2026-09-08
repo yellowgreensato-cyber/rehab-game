@@ -500,7 +500,7 @@ body.playing .tolink{display:none}   /* プレイ中は出さない */
       <button class="diff d-easy"   data-diff="easy"   aria-pressed="false">イージー<span class="dot" aria-hidden="true"><i style="width:22px;height:22px"></i></span></button>
       <button class="diff d-normal" data-diff="normal" aria-pressed="false">ノーマル<span class="dot" aria-hidden="true"><i style="width:15px;height:15px"></i></span></button>
       <button class="diff d-hard"   data-diff="hard"   aria-pressed="false">ハード<span class="dot" aria-hidden="true"><i style="width:9px;height:9px"></i></span></button>
-      <button class="diff d-muri"   data-diff="muri"   aria-pressed="false">無理<span class="dot" aria-hidden="true"><i style="width:5px;height:5px"></i></span></button>
+      <button class="diff d-muri"   data-diff="muri"   aria-pressed="false">たつじん<span class="dot" aria-hidden="true"><i style="width:5px;height:5px"></i></span></button>
     </div>
   </div>
 
@@ -650,7 +650,7 @@ const DIFFS={
           reachN:2, seqN:7,  traceTol:42, traceAmp:.58, traceLoops:0, limit:0, ringMul:1.35},
   hard:  {name:"ハード", nameEn:"Hard",   size:50,  react:"hover", area:"all",    ghostEvery:15,
           reachN:2, seqN:9,  traceTol:30, traceAmp:.74, traceLoops:1, limit:0, ringMul:1.35},
-  muri:  {name:"無理", nameEn:"Impossible",     size:25,  react:"hover", area:"all",    ghostEvery:3,
+  muri:  {name:"たつじん", nameEn:"Master",         size:25,  react:"hover", area:"all",    ghostEvery:3,
           reachN:3, seqN:12, traceTol:20, traceAmp:.88, traceLoops:2, limit:0, ringMul:1.15}
 };
 const D=()=>DIFFS[S.diff];
