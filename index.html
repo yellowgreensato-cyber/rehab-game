@@ -140,6 +140,18 @@ h1{font-family:"Zen Maru Gothic",sans-serif; font-weight:700; margin:0;
 .playbar{display:flex; align-items:center; gap:12px; margin-bottom:11px; flex-wrap:wrap}
 .playtitle{font-family:"Zen Maru Gothic",sans-serif; font-weight:700; font-size:17px}
 .playmeta{font-size:12.5px; color:var(--ink-3); font-family:"DM Mono",monospace}
+/* エアホッケーの得点板：5-0 のように、あなたが左・パソコンが右 */
+.hkboard{margin-left:auto; display:flex; align-items:baseline; gap:6px;
+  font-family:"DM Mono",ui-monospace,monospace; font-weight:500; line-height:1}
+.hkboard b{font-size:30px; color:var(--blue); min-width:1.1ch; text-align:center}
+.hkboard i{font-size:22px; font-style:normal; color:var(--ink-3)}
+.hkboard em{font-size:11px; font-style:normal; font-weight:700; letter-spacing:.08em;
+  color:var(--ink-3); font-family:"Zen Kaku Gothic New",sans-serif}
+@media (max-width:560px){
+  .playbar{gap:8px}
+  body.hockeyplay .playmeta{display:none}
+  .hkboard b{font-size:26px}
+}
 body.zen .playbar{display:none}
 .modes{display:flex; flex-wrap:wrap; justify-content:center; gap:8px}
 .mode{width:206px; text-align:center; background:var(--surface); border:2px solid var(--line);
@@ -199,7 +211,7 @@ body.zen .playbar{display:none}
 /* stage */
 .stage{display:grid; grid-template-columns:1fr 196px; gap:13px; align-items:start}
 .fieldwrap{position:relative}
-.field{position:relative; width:100%; aspect-ratio:16/10; min-height:330px; max-height:60vh;
+.field{position:relative; width:100%; aspect-ratio:16/10; min-height:380px; max-height:69vh;
   background:var(--field); border:2px solid var(--line); border-radius:var(--r);
   overflow:hidden; touch-action:none; user-select:none; -webkit-user-select:none;
   -webkit-touch-callout:none; -webkit-tap-highlight-color:transparent}
@@ -252,6 +264,31 @@ body.zen .hud{top:16px; left:20px}
 .disc::after{content:""; position:absolute; inset:27%; border-radius:50%;
   border:2.5px dashed rgba(255,255,255,.5)}
 .disc.held{background:var(--blue-2)}
+/* ---- エアホッケー：下があなた・上がパソコン（左右の手を選ばない縦向き） ---- */
+.hk-mid{position:absolute; left:0; right:0; top:50%; border-top:3px dashed var(--field-line); pointer-events:none}
+.hk-goal{position:absolute; height:9px; border-radius:5px; background:var(--green); pointer-events:none}
+.hk-goal.cpu{top:0}
+.hk-goal.me{bottom:0}
+.hk-num{position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
+  pointer-events:none; user-select:none; white-space:nowrap;
+  font-family:"DM Mono",ui-monospace,monospace; font-weight:500; line-height:1;
+  color:var(--blue); opacity:.15}
+.hk-tag{position:absolute; left:50%; transform:translateX(-50%); pointer-events:none; user-select:none;
+  font-size:12px; font-weight:700; letter-spacing:.18em; color:var(--ink-3); opacity:.55}
+.hk-tag.cpu{top:6px}
+.hk-tag.me{bottom:6px}
+.hk-mallet{position:absolute; left:0; top:0; border-radius:50%; pointer-events:none; will-change:transform}
+.hk-mallet.me{background:var(--blue); box-shadow:0 0 0 4px var(--blue-soft)}
+.hk-mallet.cpu{background:var(--ink-2); box-shadow:0 0 0 4px var(--surface-2)}
+.hk-puck{position:absolute; left:0; top:0; border-radius:50%; background:var(--shu);
+  pointer-events:none; will-change:transform; box-shadow:0 2px 5px rgba(60,45,10,.35)}
+.hk-flash{position:absolute; left:0; right:0; height:34%; pointer-events:none; opacity:0;
+  background:linear-gradient(var(--go-soft),transparent)}
+.hk-flash.cpu{top:0}
+.hk-flash.me{bottom:0; background:linear-gradient(transparent,var(--shu-soft))}
+.hk-flash.on{animation:hkflash .5s ease-out}
+@keyframes hkflash{from{opacity:.95} to{opacity:0}}
+@media (prefers-reduced-motion: reduce){ .hk-flash.on{animation:none} }
 .ring{position:absolute; border-radius:50%; border:4px dashed var(--green);
   background:var(--green-soft); display:grid; place-items:center;
   font-size:12px; letter-spacing:.1em; color:var(--green-ink); font-weight:700}
@@ -435,10 +472,10 @@ body.playing .tolink{display:none}   /* プレイ中は出さない */
 .toast[hidden]{display:none}
 
 @supports not (aspect-ratio: 16 / 10){
-  .field{height:56vw}
+  .field{height:64vw}
 }
 @media (max-width:840px){
-  @supports not (aspect-ratio: 3 / 4){ .field{height:118vw} }
+  @supports not (aspect-ratio: 3 / 4){ .field{height:136vw} }
   .stage{grid-template-columns:1fr}
   body.playing header{display:none}      /* プレイ中はタイトルを隠して広く使う */
   body.playing .wrap{padding-top:10px}
@@ -448,7 +485,29 @@ body.playing .tolink{display:none}   /* プレイ中は出さない */
   .railbtns{display:flex; gap:8px}
   .railbtns button{padding:9px 20px}
 
-  .field{aspect-ratio:3/4; max-height:62vh; max-height:62dvh}
+  .field{aspect-ratio:3/4; max-height:71vh; max-height:71dvh}
+}
+/* エアホッケーは縦長のコートにする（上がパソコン・下があなた、なので上下に長いほうが遊びやすい） */
+body.hockeyplay:not(.zen) .fieldwrap{margin-left:auto; margin-right:auto;
+  width:min(100%, 540px, calc(87vh * 5 / 8));
+  width:min(100%, 540px, calc(87dvh * 5 / 8))}
+body.hockeyplay:not(.zen) .field{aspect-ratio:5/8; min-height:368px;
+  max-height:calc(100vh - 124px); max-height:calc(100dvh - 124px)}
+/* コートの上に置くものを詰めて、そのぶんコートを広く使う */
+body.hockeyplay.playing header{display:none}
+body.hockeyplay .playbar{margin-bottom:3px}
+/* 数えている間もコートが見えるように、幕を薄くする */
+body.hockeyplay #ovCount{background:transparent;
+  background:color-mix(in srgb, var(--ground) 20%, transparent);
+  -webkit-backdrop-filter:none; backdrop-filter:none}
+body.hockeyplay #ovCount .count{text-shadow:0 0 20px var(--ground), 0 0 9px var(--ground)}
+body.hockeyplay.playing .wrap{padding-top:6px; padding-bottom:4px}
+@supports not (aspect-ratio: 5 / 8){
+  body.hockeyplay:not(.zen) .field{height:87vh; height:87dvh}
+}
+/* スマホは横幅がいっぱいなので、そのぶん縦を長くとる */
+@media (max-width:560px){
+  body.hockeyplay:not(.zen) .field{aspect-ratio:5/9}
 }
 @media (prefers-reduced-motion:reduce){
   *{animation-duration:.01ms!important}
@@ -491,6 +550,7 @@ body.playing .tolink{display:none}   /* プレイ中は出さない */
       <button class="mode" data-mode="carry" aria-pressed="false"><b>はこぶ</b><span><em>人差し指の練習に</em>押さえたまま運ぶ</span></button>
       <button class="mode" data-mode="trace" aria-pressed="false"><b>なぞる</b><span><em>指先の制御に</em>線から外れず進む</span></button>
       <button class="mode" data-mode="seq" aria-pressed="false"><b>じゅんばん</b><span><em>注意・探索に</em>数字を順に押す</span></button>
+      <button class="mode" data-mode="hockey" aria-pressed="false"><b>エアホッケー</b><span><em>右手でも左手でも</em>下があなた、上がパソコン</span></button>
     </div>
   </div>
 
@@ -514,6 +574,11 @@ body.playing .tolink{display:none}   /* プレイ中は出さない */
           <button data-dur="60" aria-pressed="false">60秒</button>
           <button data-dur="0" aria-pressed="false">時間なし</button>
         </div>
+        <div class="seg big" id="goals" role="group" aria-label="目標点" hidden>
+          <button data-goal="7" aria-pressed="false">7点</button>
+          <button data-goal="14" aria-pressed="false">14点</button>
+          <button data-goal="21" aria-pressed="false">21点</button>
+        </div>
       </div>
     </div>
   </div>
@@ -527,6 +592,7 @@ body.playing .tolink{display:none}   /* プレイ中は出さない */
   <button class="ghost" id="backBtn">← もどる</button>
   <span class="playtitle" id="playTitle">リーチ</span>
   <span class="playmeta" id="playMeta"></span>
+  <span class="hkboard" id="hkBoard" hidden><em id="hkYouLab">あなた</em><b id="hkMe">0</b><i>-</i><b id="hkCpu">0</b><em id="hkCpuLab">パソコン</em></span>
 </div>
 <section class="stage">
   <div class="fieldwrap">
@@ -640,18 +706,27 @@ const MODES={
   seq:{name:"じゅんばん", nameEn:"Order", descHtml:"<em>注意・探索に</em>数字を順に押す", timeLab:"平均所要", timeLabEn:"Avg. time",
     missLab:"押し間違い", missLabEn:"Wrong taps",
     descEn:"Attention and search - press the numbers in order",
-    opts:["size"]}
+    opts:["size"]},
+  hockey:{name:"エアホッケー", nameEn:"Air Hockey",
+    descHtml:"<em>右手でも左手でも</em>下があなた、上がパソコン", timeLab:"平均ラリー", timeLabEn:"Avg. rally",
+    missLab:"失点", missLabEn:"Goals against",
+    descEn:"Either hand - you at the bottom, the computer at the top",
+    opts:[]}
 };
 /* むずかしさ：4段階の固定プリセット（内容は変更不可） */
 const DIFFS={
   easy:  {name:"イージー", nameEn:"Easy", size:150, react:"hover", area:"narrow", ghostEvery:15,
-          reachN:1, seqN:5,  traceTol:56, traceAmp:.34, traceLoops:0, limit:0, ringMul:1.35},
+          reachN:1, seqN:5,  traceTol:56, traceAmp:.34, traceLoops:0, limit:0, ringMul:1.35,
+          hkBall:58, hkSpeed:.62, hkMax:.84,  hkCpu:.27, hkMallet:96, hkErr:.50, hkCpuM:.85, hkKick:.24, hkGoal:.46},
   normal:{name:"ノーマル", nameEn:"Normal", size:100, react:"hover", area:"all",    ghostEvery:15,
-          reachN:2, seqN:7,  traceTol:42, traceAmp:.58, traceLoops:0, limit:0, ringMul:1.35},
+          reachN:2, seqN:7,  traceTol:42, traceAmp:.58, traceLoops:0, limit:0, ringMul:1.35,
+          hkBall:42, hkSpeed:.90, hkMax:1.50, hkCpu:.50, hkMallet:80, hkErr:.27, hkCpuM:.72, hkKick:.45, hkGoal:.36},
   hard:  {name:"ハード", nameEn:"Hard",   size:50,  react:"hover", area:"all",    ghostEvery:15,
-          reachN:2, seqN:9,  traceTol:30, traceAmp:.74, traceLoops:1, limit:0, ringMul:1.35},
+          reachN:2, seqN:9,  traceTol:30, traceAmp:.74, traceLoops:1, limit:0, ringMul:1.35,
+          hkBall:28, hkSpeed:1.25, hkMax:2.05, hkCpu:.60, hkMallet:62, hkErr:.21, hkCpuM:.82, hkKick:.55, hkGoal:.34},
   muri:  {name:"たつじん", nameEn:"Master",         size:25,  react:"hover", area:"all",    ghostEvery:3,
-          reachN:3, seqN:12, traceTol:20, traceAmp:.88, traceLoops:2, limit:0, ringMul:1.15}
+          reachN:3, seqN:12, traceTol:20, traceAmp:.88, traceLoops:2, limit:0, ringMul:1.15,
+          hkBall:28, hkSpeed:1.25, hkMax:2.05, hkCpu:.60, hkMallet:62, hkErr:.21, hkCpuM:.82, hkKick:.55, hkGoal:.34}
 };
 const D=()=>DIFFS[S.diff];
 let LANG="ja";
@@ -714,6 +789,14 @@ const T = {
                 "Download it and have an AI customise it for you - enjoy!"]],
   aboutBody:  ["脳卒中後遺症で手のリハビリを頑張っている方に、\n楽しみながらたくさん手を動かせるようなゲームが出来たらと思って作りました。\n\n世のため人のために働きなさいと、どこかの父親が言っていたので、\nこれが役に立てればいいなと思っています。\n\nフォースとともにあらんことを",
                "I made this hoping that people working hard on hand rehabilitation\nafter a stroke could move their hands a lot while having fun.\n\nSomeone's father once said: work for the good of the world and its people.\nI hope this turns out to be of some use.\n\nMay the Force be with you."],
+  step2hk:    ["ボールをえらぶ", "Choose a ball"],
+  step3hk:    ["なんてんまでか えらぶ", "Play to how many"],
+  hkYou:      ["あなた", "YOU"],
+  hkCpu:      ["パソコン", "PC"],
+  hkGoals:    ["とく点", "Goals"],
+  hkResult:   ["けっか", "Result"],
+  hkWin:      ["勝ち！", "You win!"],
+  hkLose:     ["おしい！", "So close!"],
   free:       ["時間なし", "No limit"],
   freeNote:   ["秒(時間なし)", "s (no limit)"]
 };
@@ -917,9 +1000,9 @@ function cheer(){
   lastCheer=item[0];
   return item;
 }
-const PTS={normal:1, ghost:3, carry:2, trace:3, seq:3};
+const PTS={normal:1, ghost:3, carry:2, trace:3, seq:3, hockey:3, hockeyWin:10};
 
-const S={mode:null, diff:null, dur:null,
+const S={mode:null, diff:null, dur:null, goal:null,
   sound:true, running:false, paused:false, t:0, elapsed:0,
   score:0, hits:0, miss:0, ghosts:0, spawned:0, times:[], lastTs:0, raf:0};
 
@@ -946,6 +1029,47 @@ function unlockAudio(){
     const o=ac.createOscillator(), gg=ac.createGain();
     gg.gain.value=0.00001; o.connect(gg); gg.connect(ac.destination);
     o.start(); o.stop(ac.currentTime+0.02);
+  }catch(e){}
+}
+/* パックを弾く音。当たりが強いほど高く、かたく鳴る（wall=true は壁に当たった音） */
+let noiseBuf=null, lastKnock=0;
+function knock(power, wall){
+  if(!S.sound) return;
+  /* 隅に挟まったときなどに連射しないよう、少しだけ間をあける */
+  const nowMs=performance.now();
+  if(nowMs-lastKnock < 34) return;
+  lastKnock=nowMs;
+  try{
+    ac=ac||new (window.AudioContext||window.webkitAudioContext)();
+    if(ac.state==="suspended") ac.resume();
+    const t0=ac.currentTime, p=Math.max(0,Math.min(1,power||0));
+
+    /* 芯になる音 */
+    const o=ac.createOscillator(), g=ac.createGain();
+    o.type = wall ? "sine" : "triangle";
+    const f0 = wall ? 260+140*p : 480+560*p;
+    o.frequency.setValueAtTime(f0,t0);
+    o.frequency.exponentialRampToValueAtTime(f0*.42, t0+(wall?.055:.08));
+    const vol=(wall?.07:.15)+.10*p, dur=wall?.075:.12;
+    g.gain.setValueAtTime(.0001,t0);
+    g.gain.exponentialRampToValueAtTime(vol,t0+.004);
+    g.gain.exponentialRampToValueAtTime(.0001,t0+dur);
+    o.connect(g); g.connect(ac.destination);
+    o.start(t0); o.stop(t0+dur+.02);
+
+    /* 「コンッ」という当たりの粒。短い雑音を通して作る */
+    if(!noiseBuf){
+      noiseBuf=ac.createBuffer(1, Math.floor(ac.sampleRate*.06), ac.sampleRate);
+      const d=noiseBuf.getChannelData(0);
+      for(let i=0;i<d.length;i++) d[i]=(Math.random()*2-1)*(1-i/d.length);
+    }
+    const n=ac.createBufferSource(), bp=ac.createBiquadFilter(), ng=ac.createGain();
+    n.buffer=noiseBuf;
+    bp.type="bandpass"; bp.frequency.value=wall?900:1500+900*p; bp.Q.value=1.1;
+    ng.gain.setValueAtTime((wall?.05:.11)+.07*p, t0);
+    ng.gain.exponentialRampToValueAtTime(.0001, t0+(wall?.04:.06));
+    n.connect(bp); bp.connect(ng); ng.connect(ac.destination);
+    n.start(t0); n.stop(t0+.07);
   }catch(e){}
 }
 const sHit=()=>{beep(880,.07); setTimeout(()=>beep(1320,.09),40)};   // パリンと割れる音
@@ -1354,7 +1478,232 @@ const Seq={
   resize(){ if(this.els) for(const t of this.els) place(t,t._nx,t._ny,t._d); }
 };
 
-const ENGINES={reach:Reach, carry:Carry, trace:Trace, seq:Seq};
+/* ---------- エアホッケー ----------
+   下があなた、上がパソコン。上下に分けているので、右手でも左手でも条件は同じ。
+   むずかしさはボールの大きさと速さの3段階（たつじんは使わない）。
+   時間ではなく、先に 5 / 10 / 15 点をとったほうが勝ち。 */
+const Hockey={
+  el(cls,parent){ const e=document.createElement("div"); e.className=cls; (parent||field).appendChild(e); return e; },
+  start(){
+    clearField();
+    const r=rect(), d=D();
+    this.w=r.width; this.h=r.height;
+    this.goalW=clamp(r.width*(d.hkGoal||.34), 90, 300);
+    this.pr=clamp(d.hkBall, 12, Math.min(r.width,r.height)*.16)/2;
+    this.mr=clamp(d.hkMallet, 34, Math.min(r.width,r.height)*.30)/2;
+    this.cr=this.mr*(d.hkCpuM||1);
+    this.kick=(d.hkKick==null?.5:d.hkKick);   // マレットの速さがボールに伝わる量
+    this.base=d.hkSpeed*this.h;     // 打ち出しの速さ（px/秒）
+    this.max =d.hkMax*this.h;       // 速さの上限
+    this.cpuV=d.hkCpu*this.h;       // パソコンの動ける速さ
+    this.errAmp=d.hkErr;
+
+    /* コート */
+    this.el("hk-mid");
+    for(const side of ["cpu","me"]){
+      const g=this.el("hk-goal "+side);
+      g.style.width=this.goalW+"px";
+      g.style.left=((this.w-this.goalW)/2)+"px";
+      this.el("hk-flash "+side);
+    }
+    this.fCpu=field.querySelector(".hk-flash.cpu");
+    this.fMe =field.querySelector(".hk-flash.me");
+
+    /* 得点はコートのまん中に薄く描く。ボールの下に出るだけで邪魔しない */
+    this.nBoard=this.el("hk-num");
+    this.nBoard.style.fontSize=clamp(this.h*.17, 34, 110)+"px";
+    const tc=this.el("hk-tag cpu"), tm=this.el("hk-tag me");
+    tc.textContent=TX("hkCpu"); tm.textContent=TX("hkYou");
+
+    /* 駒 */
+    this.eCpu=this.el("hk-mallet cpu"); this.eMe=this.el("hk-mallet me");
+    this.eCpu.style.width=this.eCpu.style.height=this.cr*2+"px";
+    this.eMe.style.width =this.eMe.style.height =this.mr*2+"px";
+    this.ePk=this.el("hk-puck");
+    this.ePk.style.width=this.ePk.style.height=this.pr*2+"px";
+
+    this.me ={x:this.w/2, y:this.h-this.mr*1.6, vx:0, vy:0};
+    this.tx=this.me.x; this.ty=this.me.y;
+    this.cpu={x:this.w/2, y:this.h*.19, vx:0, vy:0};
+    this.pk ={x:this.w/2, y:this.h/2, vx:0, vy:0};
+    this.meG=0; this.cpuG=0;
+    this.err=0; this.errY=0; this.errT=0;
+    this.pending="me";             // 最初はあなたの側から
+    this.freeze=.6;                // 置いてから動き出すまでの間
+    this.last=performance.now();
+    this.place("me");
+    this.paintScore();
+    this.render();
+  },
+  paintScore(){
+    if(this.nBoard) this.nBoard.textContent=this.meG+" - "+this.cpuG;
+    const a=$("#hkMe"), b=$("#hkCpu");
+    if(a) a.textContent=this.meG;
+    if(b) b.textContent=this.cpuG;
+    $("#hScore").textContent=S.score;
+  },
+  /* ボールは自陣のまん中に、止めた状態で置く。打ったところから始まる */
+  place(side){
+    this.pk.x=this.w/2;
+    this.pk.y=(side==="me") ? this.h*.75 : this.h*.25;
+    this.pk.vx=this.pk.vy=0;
+    this.rallyT0=performance.now();
+  },
+  goal(who){
+    if(who==="me"){
+      this.meG++; S.hits++; S.score+=PTS.hockey;
+      S.times.push(performance.now()-this.rallyT0);
+      sGood(); this.flash(this.fCpu);
+      this.pending="cpu";
+    }else{
+      this.cpuG++; S.miss++; sBad(); this.flash(this.fMe);
+      this.pending="me";
+    }
+    this.place(this.pending);
+    this.freeze=.9;
+    if(this.meG>=S.goal || this.cpuG>=S.goal){
+      S.won = this.meG>=S.goal;
+      if(S.won) S.score+=PTS.hockeyWin;
+      this.paintScore(); this.render();
+      S.running=false;
+      setTimeout(finish, 560);
+      return;
+    }
+    this.paintScore();
+  },
+  /* ボールが守備ラインに来るときの x を予想する（左右の壁での折り返しも見る） */
+  predictX(defY){
+    const pk=this.pk;
+    if(pk.vy>=-1) return this.w/2+(pk.x-this.w/2)*.35;
+    const t=(pk.y-defY)/(-pk.vy);
+    const span=Math.max(1,this.w-2*this.pr);
+    let u=(pk.x+pk.vx*t-this.pr)%(2*span); if(u<0) u+=2*span;
+    return this.pr+(u<span ? u : 2*span-u);
+  },
+  flash(el){ if(!el) return; el.classList.remove("on"); void el.offsetWidth; el.classList.add("on"); },
+  move(e){
+    const r=rect();
+    this.tx=clamp(e.clientX-r.left, this.mr, r.width-this.mr);
+    this.ty=clamp(e.clientY-r.top,  r.height*.5, r.height-this.mr);
+  },
+  down(e){ this.move(e); },
+  hitMallet(m,mr,isCpu){
+    const pk=this.pk, dx=pk.x-m.x, dy=pk.y-m.y;
+    const dist=Math.hypot(dx,dy), min=this.pr+mr;
+    if(dist>=min || dist<=0) return false;
+    const nx=dx/dist, ny=dy/dist;
+    pk.x=m.x+nx*min; pk.y=m.y+ny*min;
+    const vn=pk.vx*nx+pk.vy*ny;
+    if(vn<0){ pk.vx-=2*vn*nx; pk.vy-=2*vn*ny; }
+    pk.vx+=m.vx*this.kick; pk.vy+=m.vy*this.kick;
+    const sp=Math.hypot(pk.vx,pk.vy);
+    if(sp<this.base*.85){ const k=this.base*.85/(sp||1); pk.vx=(pk.vx||nx)*k; pk.vy=(pk.vy||ny)*k; }
+    /* パソコンはゴールキーパー。触れたボールを自分のゴールへ押し込むことはしない */
+    if(isCpu && pk.vy<0){
+      pk.vy=Math.max(Math.abs(pk.vy), this.base*.55);
+      if(ny<-.25) pk.y=m.y+mr+this.pr*1.02;   // 背後に回られたら前へかき出す
+    }
+    knock(Math.hypot(pk.vx,pk.vy)/this.max, false);
+    return true;
+  },
+  tick(now){
+    let dt=(now-this.last)/1000; this.last=now;
+    if(!(dt>0)) return;
+    dt=Math.min(.05,dt);
+    const w=this.w, h=this.h, pk=this.pk;
+
+    /* あなたのマレット（指の動きにそのまま追従。速さは打ち返しに使う） */
+    const ox=this.me.x, oy=this.me.y;
+    this.me.x=this.tx; this.me.y=this.ty;
+    this.me.vx=(this.me.x-ox)/dt; this.me.vy=(this.me.y-oy)/dt;
+
+    /* パソコンのマレット */
+    this.errT-=dt;
+    if(this.errT<=0){
+      this.err=rand(-1,1)*w*this.errAmp;
+      this.errY=rand(-1,1)*h*this.errAmp*.45;   // 縦のブレ。守りに隙ができる
+      this.errT=.45;
+    }
+    const c=this.cpu, cox=c.x, coy=c.y, defY=h*.19;
+    let gx, gy;
+    const reach=this.cr+this.pr;
+    const mine=pk.y<h*.55;                                  // ボールが自陣にあるか
+    const slow=Math.hypot(pk.vx,pk.vy)<this.base*.15;
+    const guard=c.y<pk.y-reach*.55;                         // ゴール側に入れているか
+    if(mine && slow){
+      if(guard){                        // 上をとれている：押し込んで打ち返す
+        gx=pk.x+this.err*.3;
+        gy=clamp(pk.y+this.cr*.9, this.cr, h*.5-this.cr*.2);
+      }else{                            // 背後にある：横へよけながらゴール側へ回り込む
+        gx=pk.x+(c.x<pk.x?-1:1)*reach*1.5;
+        gy=clamp(pk.y-reach*1.2, this.cr, h*.5-this.cr);
+      }
+    }else if(pk.vy<-1){                 // こちらへ向かってくる：来る場所の手前でカベになる
+      gx=this.predictX(defY)+this.err;
+      gy=(pk.y<h*.5) ? clamp(pk.y-reach*.8, this.cr, h*.5-this.cr) : defY;
+    }else if(mine){                     // 自陣にいる：上から下へ押し返す
+      gx=pk.x+this.err;
+      gy=clamp(pk.y-reach*.85, this.cr, h*.5-this.cr);
+    }else{                              // 相手陣：守備位置にもどる
+      gx=w/2+(pk.x-w/2)*.35+this.err*.4; gy=defY;
+    }
+    gx=clamp(gx,this.cr,w-this.cr); gy=clamp(gy+(this.errY||0),this.cr,h*.5-this.cr);
+    const cdx=gx-c.x, cdy=gy-c.y, cd=Math.hypot(cdx,cdy), step=this.cpuV*dt;
+    if(cd>step && cd>0){ c.x+=cdx/cd*step; c.y+=cdy/cd*step; } else { c.x=gx; c.y=gy; }
+    c.vx=(c.x-cox)/dt; c.vy=(c.y-coy)/dt;
+
+    /* ボール */
+    if(this.freeze>0){
+      this.freeze-=dt;
+      if(this.freeze<=0) this.rallyT0=performance.now();
+    }else{
+      const sp0=Math.hypot(pk.vx,pk.vy);
+      const n=clamp(Math.ceil(sp0*dt/(this.pr*.6)),1,8), sd=dt/n;
+      for(let i=0;i<n;i++){
+        pk.x+=pk.vx*sd; pk.y+=pk.vy*sd;
+        if(pk.x<this.pr){ pk.x=this.pr; pk.vx=Math.abs(pk.vx); knock(Math.abs(pk.vx)/this.max,true); }
+        else if(pk.x>w-this.pr){ pk.x=w-this.pr; pk.vx=-Math.abs(pk.vx); knock(Math.abs(pk.vx)/this.max,true); }
+        const inGoal=Math.abs(pk.x-w/2) < this.goalW/2;
+        if(pk.y<this.pr){
+          if(inGoal){ this.goal("me"); break; }
+          pk.y=this.pr; pk.vy=Math.abs(pk.vy); knock(Math.abs(pk.vy)/this.max,true);
+        }else if(pk.y>h-this.pr){
+          if(inGoal){ this.goal("cpu"); break; }
+          pk.y=h-this.pr; pk.vy=-Math.abs(pk.vy); knock(Math.abs(pk.vy)/this.max,true);
+        }
+        this.hitMallet(this.me,this.mr,false); this.hitMallet(c,this.cr,true);
+      }
+      /* 速さの上限と下限。真横に転がって止まらないように少し縦を足す */
+      let sp=Math.hypot(pk.vx,pk.vy);
+      if(sp>this.max){ pk.vx*=this.max/sp; pk.vy*=this.max/sp; sp=this.max; }
+      if(sp>0 && sp<this.base*.4){ const k=this.base*.4/sp; pk.vx*=k; pk.vy*=k; }
+      if(sp>0 && Math.abs(pk.vy)<this.base*.1) pk.vy += (pk.vy>=0?1:-1)*this.base*.1;
+    }
+    this.render();
+  },
+  render(){
+    const t=(el,x,y,r)=>{ el.style.transform="translate("+(x-r)+"px,"+(y-r)+"px)"; };
+    t(this.eMe, this.me.x, this.me.y, this.mr);
+    t(this.eCpu,this.cpu.x,this.cpu.y,this.cr);
+    t(this.ePk, this.pk.x, this.pk.y, this.pr);
+  },
+  resize(){
+    const r=rect();
+    if(!this.w||!this.h||!r.width) return;
+    const kx=r.width/this.w, ky=r.height/this.h;
+    for(const o of [this.me,this.cpu,this.pk]){ o.x*=kx; o.y*=ky; }
+    this.tx*=kx; this.ty*=ky;
+    this.pk.vx*=kx; this.pk.vy*=ky;
+    this.w=r.width; this.h=r.height;
+    this.goalW=clamp(r.width*(D().hkGoal||.34), 90, 300);
+    field.querySelectorAll(".hk-goal").forEach(g=>{
+      g.style.width=this.goalW+"px"; g.style.left=((this.w-this.goalW)/2)+"px"; });
+    this.base=D().hkSpeed*this.h; this.max=D().hkMax*this.h; this.cpuV=D().hkCpu*this.h;
+    this.render();
+  }
+};
+
+const ENGINES={reach:Reach, carry:Carry, trace:Trace, seq:Seq, hockey:Hockey};
 let E=null;
 
 /* ---------- 入力 ---------- */
@@ -1449,7 +1798,7 @@ function showSetup(){
   refresh();
   $("#pauseBtn").disabled=true; $("#pauseBtn").textContent=TX("pause");
   $("#stopBtn").disabled=true;
-  document.body.classList.remove("playing");
+  document.body.classList.remove("playing","hockeyplay");
   $("#scSetup").hidden=false; $("#scLog").hidden=false; $("#scPlay").hidden=true;
   $("#hud").hidden=true;
   $("#ovRes").hidden=true;
@@ -1459,17 +1808,28 @@ function showSetup(){
 }
 function showPlay(){
   document.body.classList.add("playing");
+  document.body.classList.toggle("hockeyplay", S.mode==="hockey");
+  $("#hkBoard").hidden = S.mode!=="hockey";
+  $("#hkMe").textContent="0"; $("#hkCpu").textContent="0";
   $("#scSetup").hidden=true; $("#scLog").hidden=true; $("#scPlay").hidden=false;
+  paintPlayMeta();
+  window.scrollTo({top:0,behavior:"instant"});
+}
+/* プレイ画面の見出し（言語を切り替えたときにも呼ぶ） */
+function paintPlayMeta(){
+  if(!S.mode) return;
   const d=D(), m=MODES[S.mode];
   $("#playTitle").textContent=modeName(S.mode);
-  $("#playMeta").textContent=[diffName(S.diff), m.opts.includes("size")?sizeName(d.size):null,
-    durName(S.dur)].filter(Boolean).join(" ・ ");
-  window.scrollTo({top:0,behavior:"instant"});
+  $("#playMeta").textContent = S.mode==="hockey"
+    ? [diffName(S.diff), goalName(S.goal)].join(" ・ ")
+    : [diffName(S.diff), m.opts.includes("size")?sizeName(d.size):null,
+       durName(S.dur)].filter(Boolean).join(" ・ ");
 }
 
 function startSession(){
   if(!chosen()) return;
   E=ENGINES[S.mode];
+  if(S.mode==="hockey"){ S.dur=0; S.won=false; }
   clearCd();
   S.running=false; S.paused=false;
   S.score=0; S.hits=0; S.miss=0; S.ghosts=0; S.spawned=0; S.times=[]; S.elapsed=0;
@@ -1479,9 +1839,10 @@ function startSession(){
   showPlay();
   $("#ovRes").hidden=true; $("#ovPause").hidden=true;
   $("#ovCount").hidden=true;
-  $("#hud").hidden=false;
+  $("#hud").hidden = S.mode==="hockey";
   $("#pauseBtn").disabled=true; $("#stopBtn").disabled=true; $("#startBtn").disabled=true;
   paint(); clearField();
+  if(S.mode==="hockey") E.start();   // カウントダウン中もコートを見せておく
 
   // 画面が切り替わって 1 秒たってから、3・2・1 のカウントダウン
   cdTimers.push(setTimeout(()=>{
@@ -1521,6 +1882,7 @@ function finish(){
   const rec={ts:Date.now(), mode:S.mode, diff:S.diff,
     dur:S.dur>0?S.dur:Math.round(S.elapsed), free:S.dur===0,
     size:D().size, ghosts:S.mode==="reach"?S.ghosts:null,
+    goal:S.mode==="hockey"?S.goal:null, won:S.mode==="hockey"?!!S.won:null,
     score:S.score, hits:S.hits, miss:S.miss, acc:accuracy(),
     time:S.times.length?Math.round(median(S.times)):null};
 
@@ -1536,6 +1898,7 @@ function finish(){
   $("#rTimeLab").textContent=EN()?MODES[S.mode].timeLabEn:MODES[S.mode].timeLab;
   $("#rTime").textContent=timeStat();
   $("#rGhost").textContent = rec.ghosts==null ? "—" : rec.ghosts+" 個";
+  fixResultLabels();
   const same=hist.filter(h=>h.mode===rec.mode&&h.diff===rec.diff&&h.dur===rec.dur);
   const best=Math.max(...same.map(h=>h.score));
   $("#rBest").textContent = best + (rec.score>=best && same.length>1 ? " 🎉" : "");
@@ -1575,11 +1938,13 @@ function recTime(r){ if(r.time==null) return "—";
   return r.mode==="reach" ? r.time+" ms" : (r.time/1000).toFixed(1)+" s"; }
 const diffName=(k)=>{const d=DIFFS[k]; return d?(EN()?d.nameEn:d.name):(k||"—");};
 function recSet(r){
+  if(r.mode==="hockey"){ const b=HKBALL[r.diff]; return b?(EN()?b[1]:b[0]):"—"; }
   const d=DIFFS[r.diff];
   if(!d) return r.size?sizeName(r.size):"—";
   return sizeName(d.size)+" / "+reactName(d.react)+" / "+areaName(d.area);
 }
-function recDur(r){ const u=EN()?" s":"秒"; return r.free ? r.dur+u+(EN()?" (no limit)":"(時間なし)") : r.dur+u; }
+function recDur(r){ if(r.mode==="hockey"&&r.goal) return goalName(r.goal);
+  const u=EN()?" s":"秒"; return r.free ? r.dur+u+(EN()?" (no limit)":"(時間なし)") : r.dur+u; }
 function renderLog(){
   const h=load(), b=$("#logBody");
   $("#logCount").textContent=EN()?h.length+TX("count"):h.length+TX("count");
@@ -1630,8 +1995,25 @@ const press=(wrap,sel)=>{
 };
 $("#modes").addEventListener("click",e=>{
   const b=e.target.closest(".mode"); if(!b) return;
-  S.mode=b.dataset.mode; press($("#modes"),b); refresh();
+  S.mode=b.dataset.mode; press($("#modes"),b); syncSteps(); refresh();
 });
+/* エアホッケーだけは 2=ボール（3段階）、3=なんてんまで、に切り替わる */
+function syncSteps(){
+  const hk = S.mode==="hockey";
+  const du=$("#durs"), go=$("#goals");
+  if(du) du.hidden=hk;
+  if(go) go.hidden=!hk;
+  const muri=document.querySelector('.diff[data-diff="muri"]');
+  if(muri) muri.hidden=hk;
+  if(hk && S.diff==="muri"){
+    S.diff=null;
+    document.querySelectorAll(".diff").forEach(b=>b.setAttribute("aria-pressed","false"));
+    $("#diffs").classList.remove("chosen");
+  }
+  const steps=document.querySelectorAll(".steplab h2");
+  if(steps[1]) steps[1].textContent = hk ? TX("step2hk") : TX("step2");
+  if(steps[2]) steps[2].textContent = hk ? TX("step3hk") : TX("step3");
+}
 $("#diffs").addEventListener("click",e=>{
   const b=e.target.closest(".diff"); if(!b) return;
   S.diff=b.dataset.diff; press($("#diffs"),b); refresh();
@@ -1642,9 +2024,16 @@ $("#durs").addEventListener("click",e=>{
   if(!S.running){ S.t=S.dur; S.elapsed=0; paint(); }
   refresh();
 });
+$("#goals").addEventListener("click",e=>{
+  const b=e.target.closest("button"); if(!b) return;
+  S.goal=+b.dataset.goal; press($("#goals"),b); refresh();
+});
 const DURS={30:["30秒","30 s"], 45:["45秒","45 s"], 60:["60秒","60 s"], 0:["時間なし","No limit"]};
 const durName=(v)=>EN()?DURS[v][1]:DURS[v][0];
-const chosen=()=>S.mode!==null && S.diff!==null && S.dur!==null;
+const goalName=(v)=>EN()?v+" pts":v+"点";
+const HKBALL={easy:["大きい・ゆっくり","Big & slow"], normal:["ふつう","Medium"], hard:["小さい・はやい","Small & fast"]};
+const chosen=()=>S.mode!==null && S.diff!==null &&
+  (S.mode==="hockey" ? S.goal!==null : S.dur!==null);
 
 function refresh(){
   const m=S.mode?MODES[S.mode]:null, d=S.diff?DIFFS[S.diff]:null;
@@ -1655,6 +2044,20 @@ function refresh(){
   const ok=chosen();
   $("#startBtn").disabled=!ok;
   $("#launch").classList.toggle("go", ok);
+}
+/* エアホッケーの結果は「とく点」「けっか」で見せる */
+function fixResultLabels(){
+  const dts=document.querySelectorAll(".rgrid dt");
+  const hk = lastRec && lastRec.mode==="hockey";
+  if(dts[0]) dts[0].textContent = hk ? TX("hkGoals") : TX("hits");
+  if(dts[4]) dts[4].textContent = hk ? TX("hkResult") : TX("ghosts");
+  if(hk) $("#rGhost").textContent = lastRec.won ? TX("hkWin") : TX("hkLose");
+  /* 「失点」「平均ラリー」はコースごとの言い方。言語を切り替えたときも直す */
+  const m = lastRec && MODES[lastRec.mode];
+  if(m){
+    if(dts[1]) dts[1].textContent = EN() ? m.missLabEn : m.missLab;
+    if(dts[3]) dts[3].textContent = EN() ? m.timeLabEn : m.timeLab;
+  }
 }
 /* 画面の文字を今の言語で書き換える */
 function applyLang(){
@@ -1686,6 +2089,9 @@ function applyLang(){
   document.querySelectorAll("#durs button").forEach(b=>{
     b.textContent = durName(+b.dataset.dur);
   });
+  document.querySelectorAll("#goals button").forEach(b=>{
+    b.textContent = goalName(+b.dataset.goal);
+  });
 
   set("#startBtn", TX("start"));
   set("#backBtn", TX("back"));
@@ -1698,6 +2104,13 @@ function applyLang(){
   if(dts[2]) dts[2].textContent=TX("acc");
   if(dts[4]) dts[4].textContent=TX("ghosts");
   if(dts[5]) dts[5].textContent=TX("best");
+  syncSteps(); fixResultLabels();
+  const tc=field.querySelector(".hk-tag.cpu"), tm=field.querySelector(".hk-tag.me");
+  if(tc) tc.textContent=TX("hkCpu");
+  if(tm) tm.textContent=TX("hkYou");
+  set("#hkYouLab", TX("hkYou"));
+  set("#hkCpuLab", TX("hkCpu"));
+  if(document.body.classList.contains("playing")) paintPlayMeta();
   set(".advice-lab", TX("advice"));
   set("#againBtn", TX("retry"));
   set("#closeResBtn", TX("toSetup"));
